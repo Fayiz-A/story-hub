@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, ImageSourcePropType, Dimensions } from 'react-native';
+import { Image, ImageSourcePropType, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import WriteStoryScreen from './screens/writeStoryScreen';
-import ReadStoryScreen from './screens/readStoryScreen';
+import WriteStoryScreen from './screens/WriteStoryScreen';
+import ReadStoryScreen from './screens/ReadStoryScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import GLOBALS from './globals';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,38 +15,32 @@ export default class App extends React.Component {
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={
-            ({route})=>({
-              tabBarIcon: ({ focused, color, size}) => {
-                let imagePath:ImageSourcePropType;
+            ({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let imagePath: ImageSourcePropType;
 
-                if(route.name == "Read Story") {
-                  imagePath = require("./read.png");
+                if(route.name == GLOBALS.readScreenName) {
+                  imagePath = require("./assets/read.png");
                 } else {
-                  imagePath = require("./write.png");
-                } 
+                  imagePath = require("./assets/write.png");
+                }
 
-                let largeScreen:boolean = Dimensions.get("window").width>700;
-                let imageSize:number = largeScreen?40:30;
+                let largeScreen: boolean = Dimensions.get("window").width > 700;
+                let imageSize: number = largeScreen ? 40 : 30;
 
-                return <Image source={imagePath} style={{width: imageSize, height: imageSize,}}/>
+                return <Image source={imagePath} style={{ width: imageSize, height: imageSize, }} />
               }
             })
           }
           tabBarOptions={{
             activeTintColor: 'tomato',
             inactiveTintColor: 'gray',
-            // tabStyle: {...{flexDirection: "column"}},
           }}
         >
-          <Tab.Screen name="Write Story" component={WriteStoryScreen} />
-          <Tab.Screen name="Read Story" component={ReadStoryScreen} />
+          <Tab.Screen name={GLOBALS.writeScreenName} component={WriteStoryScreen} />
+          <Tab.Screen name={GLOBALS.readScreenName} component={ReadStoryScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-  },
-});
