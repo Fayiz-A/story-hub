@@ -3,7 +3,10 @@ import { View, TextInput, StyleSheet, Dimensions, ScaledSize } from "react-nativ
 
 export interface Props {
    textInputWidth: number,
-   textInputHeight: number
+   textInputHeight: number,
+   placeholder: string,
+   onChangeText: (text: string) => void,
+   multiline: boolean
 }
 
 export interface State {
@@ -38,6 +41,9 @@ export default class TextField extends React.Component<Props, State> {
       return (
          <TextInput
             style={styles(this.props, this.state.dimensions).textField}
+            placeholder={this.props.placeholder}
+            onChangeText={this.props.onChangeText}
+            multiline={this.props.multiline}
          />
       );
    }
@@ -49,7 +55,10 @@ const styles = (props: Props, dimensions: ScaledSize) => StyleSheet.create({
       height: props.textInputHeight,
       borderColor: "red",
       borderWidth: 3,
-      borderRadius: props.textInputWidth / 2,
-      backgroundColor: "white"
+      borderRadius: props.multiline ? 20:props.textInputWidth / 2,
+      backgroundColor: "white",
+      paddingLeft: 5,
+      fontSize: dimensions.height / 30
    }
 })
+

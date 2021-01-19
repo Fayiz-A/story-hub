@@ -1,7 +1,14 @@
-import React, {Component} from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize } from 'react-native';
+import React, { Component } from 'react';
+import { View, StyleSheet, Dimensions, ScaledSize, TextInputBase } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
+
+interface TextFieldData {
+   height: number,
+   placeholder: string,
+   onChangeText: (text: string) => void,
+   multiline?: boolean
+}
 
 export interface Props {
 
@@ -11,9 +18,14 @@ export interface State {
    dimensions: ScaledSize
 }
 
+interface Size {
+   width: number,
+   height: number
+}
+
 export default class WriteStoryScreen extends React.Component<Props, State> {
-   
-   constructor(props:Props, state:State) {
+
+   constructor(props: Props, state: State) {
       super(props, state);
 
       this.state = {
@@ -22,7 +34,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    componentDidMount() {
-      Dimensions.addEventListener("change", ({window, screen}) => {
+      Dimensions.addEventListener("change", ({ window, screen }) => {
          this.setState({
             dimensions: window
          })
@@ -30,27 +42,62 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    componentWillUnmount() {
-      Dimensions.removeEventListener("change", ({window, screen}) => {
-         console.log(`Event listener for dimensions removed in text field.tsx`)
+      Dimensions.removeEventListener("change", ({ window, screen }) => {
+         console.log(`Event listener for dimensions removed in WriteStoryScreen.tsx`)
       });
    }
 
    render() {
+      let dimensions: ScaledSize = this.state.dimensions;
+      let storyTextFieldSize: Size = { width: dimensions.width / 2, height: dimensions.height / 13 }
+      let textFieldDataList: TextFieldData[] = [
+         {
+            height: storyTextFieldSize.height,
+            placeholder: "Title",
+            onChangeText: (text: string) => {
+               console.log(`Typed value chnaged to: ${text}`)
+            },
+         },
+         {
+            height: storyTextFieldSize.height,
+            placeholder: "Author",
+            onChangeText: (text: string) => {
+               console.log(`Typed value chnaged to: ${text}`)
+            }
+         },
+         {
+            height: dimensions.height / 1.8,
+            placeholder: "Story",
+            onChangeText: (text: string) => {
+               console.log(`Typed value chnaged to: ${text}`)
+            },
+            multiline: true
+         }
+      ];
       return (
          <View>
-            <AppBar title="Write Story"/>
-            <View style={styles(this.state.dimensions).storyTitleTextField}>
-               <TextField textInputWidth={200} textInputHeight={50}/>
-            </View>
+            <AppBar title="Write Story" />
+            {textFieldDataList.map(data => {
+               return <View style={textInputStyles(dimensions, storyTextFieldSize).storyTextField}>
+                  <TextField
+                     textInputWidth={storyTextFieldSize.width}
+                     textInputHeight={data.height}
+                     placeholder={data.placeholder}
+                     onChangeText={data.onChangeText}
+                     multiline={data.multiline == null ? false : data.multiline}
+                  />
+               </View>
+            })
+            }
          </View>
       )
    }
 }
 
-const styles = (dimensions:ScaledSize) => StyleSheet.create({
-   storyTitleTextField: {
-      paddingLeft: dimensions.width/2,
-      paddingTop: dimensions.height/2,
+const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.create({
+   storyTextField: {
+      paddingLeft: (dimensions.width / 2) - (size.width / 2),
+      paddingTop: size.height / 2,
       backgroundColor: "white"
-   }
+   },
 })
