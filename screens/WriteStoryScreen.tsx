@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, TextInputBase } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, Text } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
+import CustomButton from '../components/CustomButton';
+import firebase from '../configs/firebase.config';
+import GLOBALS from '../globals';
 
 interface TextFieldData {
    height: number,
@@ -15,12 +18,20 @@ export interface Props {
 }
 
 export interface State {
-   dimensions: ScaledSize
+   dimensions: ScaledSize,
+   stories: StoryDocument[],
+   storyWritten: StoryDocument
 }
 
 interface Size {
    width: number,
    height: number
+}
+
+interface StoryDocument {
+   author: string,
+   title: string,
+   story: string,
 }
 
 export default class WriteStoryScreen extends React.Component<Props, State> {
@@ -29,7 +40,13 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       super(props, state);
 
       this.state = {
-         dimensions: Dimensions.get("window")
+         dimensions: Dimensions.get("window"),
+         stories: [],
+         storyWritten: {
+            title: '',
+            author: '',
+            story: ''
+         }
       }
    }
 
@@ -39,6 +56,18 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             dimensions: window
          })
       })
+
+      this.getAllStoriesFromFirestore();
+   }
+
+   getAllStoriesFromFirestore = async () => {
+      let storiesResponse:any = await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get();
+      
+      let stories:StoryDocument[] = storiesResponse.data();
+
+      this.setState({
+         stories: stories
+      })
    }
 
    componentWillUnmount() {
@@ -47,6 +76,16 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       });
    }
 
+   submitStory = async() => {
+      let storyWritten = this.state.storyWritten;
+
+      firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
+         title: storyWritten.title,
+         author: storyWritten.author,
+         story: storyWritten.story
+      })
+   }
+   
    render() {
       let dimensions: ScaledSize = this.state.dimensions;
       let storyTextFieldSize: Size = { width: dimensions.width / 2, height: dimensions.height / 13 }
@@ -66,7 +105,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             }
          },
          {
-            height: dimensions.height / 1.8,
+            height: dimensions.height / 2.15,
             placeholder: "Story",
             onChangeText: (text: string) => {
                console.log(`Typed value chnaged to: ${text}`)
@@ -74,6 +113,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             multiline: true
          }
       ];
+      let customButtonWidth: number = 120;
       return (
          <View>
             <AppBar title="Write Story" />
@@ -89,6 +129,14 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
                </View>
             })
             }
+            <CustomButton
+               onPress={() => { console.log(`Submit tapped`) }}
+               title="Submit"
+               color="red"
+               paddingTop={20}
+               paddingLeft={(dimensions.width / 2) - (customButtonWidth / 2)}
+               width={customButtonWidth}
+            />
          </View>
       )
    }

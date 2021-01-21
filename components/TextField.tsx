@@ -53,8 +53,8 @@ const styles = (props: Props, dimensions: ScaledSize) => StyleSheet.create({
    textField: {
       width: props.textInputWidth,
       height: props.textInputHeight,
-      borderColor: "red",
-      borderWidth: 3,
+      borderColor: "black",
+      borderWidth: 4,
       borderRadius: props.multiline ? 20:props.textInputWidth / 2,
       backgroundColor: "white",
       paddingLeft: 5,

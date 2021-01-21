@@ -7,8 +7,8 @@ export interface Props {
    title: String,
    color: ColorValue,
    width: number,
-   marginTop: number,
-   marginLeft: number
+   paddingTop: number,
+   paddingLeft: number
 }
 
 export default class CustomButton extends Component<Props> {
@@ -42,13 +42,14 @@ const styles = (props: Props) =>
       borderRadius: 28
     },
     buttonSurrounding: {
-      marginTop: props.marginTop,
-      marginLeft: props.marginLeft,
+      paddingTop: props.paddingTop,
+      paddingLeft: props.paddingLeft,
+      backgroundColor: "white"
     },
     textStyle: {
       fontSize: 20,
       color: 'white',
-      // fontFamily: 'cursive',
+      fontFamily: 'cursive',
       fontWeight: 'bold',
     },
   });
