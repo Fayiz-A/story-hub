@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform, TextInput } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import CustomButton from '../components/CustomButton';
 import firebase from '../configs/firebase.config';
 import GLOBALS from '../globals';
+import { connect } from 'react-redux';
+import store from '../redux/reducers/Reducers';
+import { WriteStoryStateInterface, ActionsType } from '../redux/types';
+import { bindActionCreators, Dispatch } from 'redux';
+import { validateAndSaveStoryToDatabase } from '../redux/actions/Actions';
 
 interface TextFieldData {
    height: number,
@@ -14,7 +19,7 @@ interface TextFieldData {
 }
 
 export interface Props {
-
+   state: WriteStoryStateInterface
 }
 
 export interface State {
@@ -32,7 +37,7 @@ interface StoryDocument {
    story: string,
 }
 
-export default class WriteStoryScreen extends React.Component<Props, State> {
+class WriteStoryScreen extends React.Component<Props, State> {
 
    constructor(props: Props, state: State) {
       super(props, state);
@@ -76,7 +81,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       });
    }
 
-   validateAndSubmitStory = async (storyWritten: StoryDocument) => {
+   validateAndSubmitStory = async (storyWritten: StoryDocument, inputs:TextInput[]) => {
       let storyValidations = GLOBALS.storyValidations;
       let storyValidationErrors = storyValidations.errorMessages;
 
@@ -96,18 +101,20 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
          return false;
       }
 
-      try {
-         firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
-            title: storyWritten.title,
-            author: storyWritten.author,
-            story: storyWritten.story
-         });
-         this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
-      } catch (e) {
+      firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
+         title: storyWritten.title,
+         author: storyWritten.author,
+         story: storyWritten.story
+      }).catch(err => {
+         console.error(`Error occured while submitting the story: ${err}`);
          this.showToastMessagesToUser(GLOBALS.errors.unknownError)
          return false;
-      }
-
+      })
+      
+      inputs.map(input => input.clear())
+      this.setState({});
+      this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
+      return true;
    }
 
    showToastMessagesToUser(message: string) {
@@ -122,6 +129,8 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    render() {
+      console.log(`Stae from redux: ${this.props.state}`);
+
       let storyWritten: StoryDocument = {
          title: '',
          author: '',
@@ -155,6 +164,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
          }
       ];
       let customButtonWidth: number = 120;
+      let inputs:TextInput[] = [];
       return (
          <View>
             <AppBar title="Write Story" />
@@ -166,12 +176,15 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
                      placeholder={data.placeholder}
                      onChangeText={data.onChangeText}
                      multiline={data.multiline == null ? false : data.multiline}
+                     reference = {textInput => {
+                        inputs.push(textInput);
+                     }}
                   />
                </View>
             })
             }
             <CustomButton
-               onPress={() => this.validateAndSubmitStory(storyWritten)}
+               onPress={() => this.validateAndSubmitStory(storyWritten, inputs)}
                title="Submit"
                color="red"
                paddingTop={20}
@@ -190,3 +203,15 @@ const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.creat
       backgroundColor: "white"
    },
 })
+
+
+const mapStateToProps = (state:WriteStoryStateInterface) => {
+   return state;
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+   actions: bindActionCreators(validateAndSaveStoryToDatabase, dispatch),
+ });
+ 
+
+ export default connect(mapStateToProps)(WriteStoryScreen);

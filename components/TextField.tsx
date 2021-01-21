@@ -6,7 +6,8 @@ export interface Props {
    textInputHeight: number,
    placeholder: string,
    onChangeText: (text: string) => void,
-   multiline: boolean
+   multiline: boolean,
+   reference?: (input: TextInput) => void;
 }
 
 export interface State {
@@ -44,6 +45,7 @@ export default class TextField extends React.Component<Props, State> {
             placeholder={this.props.placeholder}
             onChangeText={this.props.onChangeText}
             multiline={this.props.multiline}
+            ref = {this.props.reference}
          />
       );
    }
