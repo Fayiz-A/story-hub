@@ -19,8 +19,6 @@ export interface Props {
 
 export interface State {
    dimensions: ScaledSize,
-   stories: StoryDocument[],
-   storyWritten: StoryDocument
 }
 
 interface Size {
@@ -41,12 +39,6 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
 
       this.state = {
          dimensions: Dimensions.get("window"),
-         stories: [],
-         storyWritten: {
-            title: '',
-            author: '',
-            story: ''
-         }
       }
    }
 
@@ -61,13 +53,21 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    getAllStoriesFromFirestore = async () => {
-      let storiesResponse:any = await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get();
+      try {
+         let storiesResponse = await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get();
+         let _stories:StoryDocument[] = [];
       
-      let stories:StoryDocument[] = storiesResponse.data();
-
-      this.setState({
-         stories: stories
-      })
+         storiesResponse.docs.map(doc => {
+            _stories.push( {
+               author: doc.data().author,
+               title: doc.data().title,
+               story: doc.data().story
+            })
+         });
+      } catch(e) {
+         console.error(`Error occurred in fetching stories ${e}`)
+      }
+      
    }
 
    componentWillUnmount() {
@@ -76,22 +76,22 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       });
    }
 
-   validateAndSubmitStory = async(storyWritten:StoryDocument) => {
+   validateAndSubmitStory = async (storyWritten: StoryDocument) => {
       let storyValidations = GLOBALS.storyValidations;
       let storyValidationErrors = storyValidations.errorMessages;
 
       let authorNameMinimumLength = storyValidations.authorNameMinimumLength;
       let titleMinimumLength = storyValidations.titleMinimumLength;
       let storyNameMinimumLength = storyValidations.storyMinimumLength;
-      
+
       console.log(`Story Written ${JSON.stringify(storyWritten)}`);
-      if(storyWritten.author.length < authorNameMinimumLength) {
+      if (storyWritten.author.length < authorNameMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
          return false;
-      } else if(storyWritten.title.length < titleMinimumLength) {
+      } else if (storyWritten.title.length < titleMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
          return false;
-      } else if(storyWritten.story.length < storyNameMinimumLength) {
+      } else if (storyWritten.story.length < storyNameMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
          return false;
       }
@@ -109,20 +109,20 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       }
 
    }
-   
+
    showToastMessagesToUser(message: string) {
 
       //Toast android doesn't work on any ohter thing than android
       if (Platform.OS == 'android') {
          ToastAndroid.show(message, ToastAndroid.LONG);
-     } else {
+      } else {
          alert(message);
-     }
- 
+      }
+
    }
 
    render() {
-      let storyWritten:StoryDocument = {
+      let storyWritten: StoryDocument = {
          title: '',
          author: '',
          story: ''

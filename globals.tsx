@@ -14,12 +14,12 @@ export default {
       storyMinimumLength: 50,
       errorMessages: {
          authorNameTooShort: "I have never heard an author name so short like this! 🤔 According to me, a name should atleast be of 2 letters.",
-         storyTooShort: "The story content is too short. The readers may not read such a short story! According to my experience, it should be of 50 words ateast.",
+         storyTooShort: "The story content is too short. The readers may not read such a short story! According to my experience, it should be of 50 words atleast.",
          titleTooShort: "The title is too short! It should be descriptive and of atleast 2 letters."
       }
    },
 
    errors: {
-      unknownError: ""
+      unknownError: "Some error occured!"
    }
 }
