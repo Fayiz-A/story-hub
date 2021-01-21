@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, Text } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import CustomButton from '../components/CustomButton';
@@ -76,17 +76,58 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       });
    }
 
-   submitStory = async() => {
-      let storyWritten = this.state.storyWritten;
+   validateAndSubmitStory = async(storyWritten:StoryDocument) => {
+      let storyValidations = GLOBALS.storyValidations;
+      let storyValidationErrors = storyValidations.errorMessages;
 
-      firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
-         title: storyWritten.title,
-         author: storyWritten.author,
-         story: storyWritten.story
-      })
+      let authorNameMinimumLength = storyValidations.authorNameMinimumLength;
+      let titleMinimumLength = storyValidations.titleMinimumLength;
+      let storyNameMinimumLength = storyValidations.storyMinimumLength;
+      
+      console.log(`Story Written ${JSON.stringify(storyWritten)}`);
+      if(storyWritten.author.length < authorNameMinimumLength) {
+         this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
+         return false;
+      } else if(storyWritten.title.length < titleMinimumLength) {
+         this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
+         return false;
+      } else if(storyWritten.story.length < storyNameMinimumLength) {
+         this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
+         return false;
+      }
+
+      try {
+         firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
+            title: storyWritten.title,
+            author: storyWritten.author,
+            story: storyWritten.story
+         });
+         this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
+      } catch (e) {
+         this.showToastMessagesToUser(GLOBALS.errors.unknownError)
+         return false;
+      }
+
    }
    
+   showToastMessagesToUser(message: string) {
+
+      //Toast android doesn't work on any ohter thing than android
+      if (Platform.OS == 'android') {
+         ToastAndroid.show(message, ToastAndroid.LONG);
+     } else {
+         alert(message);
+     }
+ 
+   }
+
    render() {
+      let storyWritten:StoryDocument = {
+         title: '',
+         author: '',
+         story: ''
+      };
+
       let dimensions: ScaledSize = this.state.dimensions;
       let storyTextFieldSize: Size = { width: dimensions.width / 2, height: dimensions.height / 13 }
       let textFieldDataList: TextFieldData[] = [
@@ -94,21 +135,21 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             height: storyTextFieldSize.height,
             placeholder: "Title",
             onChangeText: (text: string) => {
-               console.log(`Typed value chnaged to: ${text}`)
+               storyWritten.title = text;
             },
          },
          {
             height: storyTextFieldSize.height,
             placeholder: "Author",
             onChangeText: (text: string) => {
-               console.log(`Typed value chnaged to: ${text}`)
+               storyWritten.author = text;
             }
          },
          {
             height: dimensions.height / 2.15,
             placeholder: "Story",
             onChangeText: (text: string) => {
-               console.log(`Typed value chnaged to: ${text}`)
+               storyWritten.story = text;
             },
             multiline: true
          }
@@ -130,7 +171,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             })
             }
             <CustomButton
-               onPress={() => { console.log(`Submit tapped`) }}
+               onPress={() => this.validateAndSubmitStory(storyWritten)}
                title="Submit"
                color="red"
                paddingTop={20}

@@ -23,7 +23,7 @@ export default class CustomButton extends Component<Props> {
       <View style={styles(this.props).buttonSurrounding}>
         <TouchableOpacity
           style={styles(this.props).button}
-          onPress={this.props.onPress()}>
+          onPress={this.props.onPress}>
           <Text style={styles(this.props).textStyle}>{this.props.title}</Text>
         </TouchableOpacity>
       </View>
