@@ -47,7 +47,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    getAllStoriesFromFirestore = async () => {
-      await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get()
+      await firebase.firestore().collection(GLOBALS.firestore.collections.stories).limit(15).get()
          .then(res => {
             let _stories: StoryDocument[] = [];
 

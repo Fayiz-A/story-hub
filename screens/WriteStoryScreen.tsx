@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform, TextInput, Button, Text } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform, TextInput, Button, Text, KeyboardAvoidingView } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import CustomButton from '../components/CustomButton';
@@ -63,13 +63,13 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       let storyNameMinimumLength = storyValidations.storyMinimumLength;
 
       console.log(`Story Written ${JSON.stringify(storyWritten)}`);
-      if (storyWritten.author.length < authorNameMinimumLength) {
+      if (storyWritten.author.trim().length < authorNameMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
          return false;
-      } else if (storyWritten.title.length < titleMinimumLength) {
+      } else if (storyWritten.title.trim().length < titleMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
          return false;
-      } else if (storyWritten.story.length < storyNameMinimumLength) {
+      } else if (storyWritten.story.trim().length < storyNameMinimumLength) {
          this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
          return false;
       }
@@ -144,7 +144,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       let customButtonWidth: number = 120;
       let inputs: TextInput[] = [];
       return (
-         <View  style={styles(dimensions).background}>
+         <KeyboardAvoidingView style={styles(dimensions).background} behavior ="padding" enabled>
             <AppBar title="Write Story" />
             {textFieldDataList.map(data => {
                return <View style={textInputStyles(dimensions, storyTextFieldSize).storyTextField} >
@@ -172,7 +172,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
                paddingLeft={(dimensions.width / 2) - (customButtonWidth / 2)}
                width={customButtonWidth}
             />
-         </View>
+         </KeyboardAvoidingView>
       )
    }
 }
@@ -187,6 +187,6 @@ const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.creat
 const styles = (dimensions:ScaledSize) => StyleSheet.create({
    background: {
       height: dimensions.height,
-      backgroundColor: "white"
+      backgroundColor: "#ffe57f"
    }
 });
