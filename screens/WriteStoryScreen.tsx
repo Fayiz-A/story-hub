@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform, TextInput } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform, TextInput, Button, Text } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import CustomButton from '../components/CustomButton';
@@ -19,7 +19,8 @@ interface TextFieldData {
 }
 
 export interface Props {
-   state: WriteStoryStateInterface
+   writeStoryState: WriteStoryStateInterface,
+   validateAndSaveStoryToDatabase: (storyWritten:StoryDocument) => any,
 }
 
 export interface State {
@@ -82,39 +83,65 @@ class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    validateAndSubmitStory = async (storyWritten: StoryDocument, inputs:TextInput[]) => {
-      let storyValidations = GLOBALS.storyValidations;
-      let storyValidationErrors = storyValidations.errorMessages;
+      // let storyValidations = GLOBALS.storyValidations;
+      // let storyValidationErrors = storyValidations.errorMessages;
 
-      let authorNameMinimumLength = storyValidations.authorNameMinimumLength;
-      let titleMinimumLength = storyValidations.titleMinimumLength;
-      let storyNameMinimumLength = storyValidations.storyMinimumLength;
+      // let authorNameMinimumLength = storyValidations.authorNameMinimumLength;
+      // let titleMinimumLength = storyValidations.titleMinimumLength;
+      // let storyNameMinimumLength = storyValidations.storyMinimumLength;
 
-      console.log(`Story Written ${JSON.stringify(storyWritten)}`);
-      if (storyWritten.author.length < authorNameMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
-         return false;
-      } else if (storyWritten.title.length < titleMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
-         return false;
-      } else if (storyWritten.story.length < storyNameMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
-         return false;
-      }
+      // console.log(`Story Written ${JSON.stringify(storyWritten)}`);
+      // if (storyWritten.author.length < authorNameMinimumLength) {
+      //    this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
+      //    return false;
+      // } else if (storyWritten.title.length < titleMinimumLength) {
+      //    this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
+      //    return false;
+      // } else if (storyWritten.story.length < storyNameMinimumLength) {
+      //    this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
+      //    return false;
+      // }
 
-      firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
-         title: storyWritten.title,
-         author: storyWritten.author,
-         story: storyWritten.story
-      }).catch(err => {
-         console.error(`Error occured while submitting the story: ${err}`);
-         this.showToastMessagesToUser(GLOBALS.errors.unknownError)
-         return false;
-      })
+      // firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
+      //    title: storyWritten.title,
+      //    author: storyWritten.author,
+      //    story: storyWritten.story
+      // }).catch(err => {
+      //    console.error(`Error occured while submitting the story: ${err}`);
+      //    this.showToastMessagesToUser(GLOBALS.errors.unknownError)
+      //    return false;
+      // })
       
-      inputs.map(input => input.clear())
-      this.setState({});
-      this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
-      return true;
+      // inputs.map(input => input.clear())
+      // this.setState({});
+      // this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
+      // return true;
+
+
+   }
+
+   componentDidUpdate() {
+      console.log(`In componentDidUpdate() => state:=${JSON.stringify(this.props.writeStoryState)}`)
+      let state = this.props.writeStoryState;
+
+      if(!state.validationsCleared) {
+         let storyValidations = GLOBALS.storyValidations;
+         let storyValidationErrors = storyValidations.errorMessages;
+
+         if (state.storyAuthorTooShort) {
+            this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
+         } else if (state.storyTitleTooShort) {
+            this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
+         } else if (state.storyTooShort) {
+            this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
+         }
+      } else {
+         if(state.storySubmitted == true) {
+            this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
+         } else {
+            this.showToastMessagesToUser(GLOBALS.errors.unknownError)
+         }
+      }
    }
 
    showToastMessagesToUser(message: string) {
@@ -129,7 +156,6 @@ class WriteStoryScreen extends React.Component<Props, State> {
    }
 
    render() {
-      console.log(`Stae from redux: ${this.props.state}`);
 
       let storyWritten: StoryDocument = {
          title: '',
@@ -184,7 +210,7 @@ class WriteStoryScreen extends React.Component<Props, State> {
             })
             }
             <CustomButton
-               onPress={() => this.validateAndSubmitStory(storyWritten, inputs)}
+               onPress={() => this.props.validateAndSaveStoryToDatabase(storyWritten)}
                title="Submit"
                color="red"
                paddingTop={20}
@@ -206,12 +232,15 @@ const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.creat
 
 
 const mapStateToProps = (state:WriteStoryStateInterface) => {
-   return state;
+   console.log(`State in mapStateToProps: ${JSON.stringify(state)}`)
+   return {writeStoryState: state};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-   actions: bindActionCreators(validateAndSaveStoryToDatabase, dispatch),
- });
+const mapDispatchToProps = (dispatch: any) => {
+   return {
+      validateAndSaveStoryToDatabase: (storyWritten:StoryDocument) => dispatch(validateAndSaveStoryToDatabase(storyWritten)),
+   }
+ };
  
 
- export default connect(mapStateToProps)(WriteStoryScreen);
+ export default connect(mapStateToProps, mapDispatchToProps)(WriteStoryScreen);
