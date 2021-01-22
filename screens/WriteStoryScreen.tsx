@@ -144,7 +144,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
       let customButtonWidth: number = 120;
       let inputs: TextInput[] = [];
       return (
-         <View>
+         <View  style={styles(dimensions).background}>
             <AppBar title="Write Story" />
             {textFieldDataList.map(data => {
                return <View style={textInputStyles(dimensions, storyTextFieldSize).storyTextField} >
@@ -181,6 +181,12 @@ const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.creat
    storyTextField: {
       paddingLeft: (dimensions.width / 2) - (size.width / 2),
       paddingTop: size.height / 2,
-      backgroundColor: "white"
    },
 })
+
+const styles = (dimensions:ScaledSize) => StyleSheet.create({
+   background: {
+      height: dimensions.height,
+      backgroundColor: "white"
+   }
+});

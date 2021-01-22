@@ -44,7 +44,6 @@ const styles = (props: Props) =>
     buttonSurrounding: {
       paddingTop: props.paddingTop,
       paddingLeft: props.paddingLeft,
-      backgroundColor: "white"
     },
     textStyle: {
       fontSize: 20,

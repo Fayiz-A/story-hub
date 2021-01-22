@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text, ActivityIndicator } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import firebase from '../configs/firebase.config';
@@ -75,28 +75,32 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    render() {
-      
+
       return (
-         <View>
+         <View style={responsiveStyles(this.state.dimensions).background}>
             <AppBar title="Read Story" />
-            <FlatList 
-               data={this.state.stories}
-               renderItem={({index}) => <ListTile storyData = {this.state.stories[index]} dimensions={this.state.dimensions}/>}
-               keyExtractor={(item, index)=>index.toString()}
-               style={storyListTileStyles(this.state.dimensions).listView}
-            />
-         </View> 
+            {
+               this.state.stories.length == 0 ?
+                  <View style={responsiveStyles(this.state.dimensions).activityIndicatorContainer}>
+                     <ActivityIndicator animating={true} color="purple" size={this.state.dimensions.height/3}/>
+                  </View> :
+                  <FlatList
+                     data={this.state.stories}
+                     renderItem={({ index }) => <ListTile storyData={this.state.stories[index]} dimensions={this.state.dimensions} />}
+                     keyExtractor={(item, index) => index.toString()}
+                  />}
+         </View>
       )
    }
 }
 
-const ListTile = ({storyData, dimensions}:{storyData:StoryDocument, dimensions:ScaledSize}) => {
+const ListTile = ({ storyData, dimensions }: { storyData: StoryDocument, dimensions: ScaledSize }) => {
 
-   let styles = storyListTileStyles(dimensions);
+   let styles = responsiveStyles(dimensions);
    let letters = 'BCDEF'.split('');
    let color = '#';
-   for (var i = 0; i < 6; i++ ) {
-       color += letters[Math.floor(Math.random() * letters.length)];
+   for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * letters.length)];
    }
 
    console.log(`Color: ${color}`)
@@ -109,7 +113,7 @@ const ListTile = ({storyData, dimensions}:{storyData:StoryDocument, dimensions:S
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.5,
       shadowRadius: 2,
-      elevation: 2,    
+      elevation: 2,
       paddingLeft: 10,
       borderRadius: 10
    }
@@ -130,9 +134,8 @@ const ListTile = ({storyData, dimensions}:{storyData:StoryDocument, dimensions:S
    );
 }
 
-const storyListTileStyles = (dimensions: ScaledSize) => StyleSheet.create({
-   listView: {
-      marginTop: 2.0,
+const responsiveStyles = (dimensions: ScaledSize) => StyleSheet.create({
+   background: {
       height: dimensions.height,
       backgroundColor: "#ffe57f",
    },
@@ -149,5 +152,8 @@ const storyListTileStyles = (dimensions: ScaledSize) => StyleSheet.create({
    },
    listTileText: {
       fontSize: GLOBALS.listTile.styles.font.size
-   }
+   },
+   activityIndicatorContainer: {
+      paddingTop: dimensions.height/2-((dimensions.height/3)/2), //(dimensions.height/3) is the diameter of the activity indicator
+   },
 })
