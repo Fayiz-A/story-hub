@@ -5,21 +5,13 @@ import WriteStoryScreen from './screens/WriteStoryScreen';
 import ReadStoryScreen from './screens/ReadStoryScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import GLOBALS from './globals';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import AppReducer from './redux/reducers/Reducers';
-import WriteStoryReducer from './redux/reducers/Reducers';
 
 const Tab = createBottomTabNavigator();
-const store = createStore(WriteStoryReducer);
 
 export default class App extends React.Component {
-
+  
   render() {
-    console.log(`Store state: ${JSON.stringify(store.getState())}`);
-
     return (
-      <Provider store={store}>
         <NavigationContainer>
           <Tab.Navigator
             screenOptions={
@@ -49,7 +41,6 @@ export default class App extends React.Component {
             <Tab.Screen name={GLOBALS.readScreenName} component={ReadStoryScreen} />
           </Tab.Navigator>
         </NavigationContainer>
-      </Provider>
     );
   }
 }
