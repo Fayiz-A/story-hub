@@ -21,5 +21,14 @@ export default {
 
    errors: {
       unknownError: "Some error occured!"
+   },
+
+   listTile: {
+      styles: {
+         font: {
+            size: 20,
+            family: "cursive"
+         }
+      }
    }
 }

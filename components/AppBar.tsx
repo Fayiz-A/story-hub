@@ -22,19 +22,18 @@ class AppBar extends React.Component<Props> {
 const styles = StyleSheet.create({
   textStyle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "white"
+    fontWeight: "bold"
   },
   container: {
     shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 2,    
     alignItems: "center",
     justifyContent: "center",
     height: 60,
-    backgroundColor: "purple"
+    backgroundColor: "cyan"
   },
 });
 

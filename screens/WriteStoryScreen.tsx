@@ -46,26 +46,6 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             dimensions: window
          })
       })
-
-      this.getAllStoriesFromFirestore();
-   }
-
-   getAllStoriesFromFirestore = async () => {
-      try {
-         let storiesResponse = await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get();
-         let _stories: StoryDocument[] = [];
-
-         storiesResponse.docs.map(doc => {
-            _stories.push({
-               author: doc.data().author,
-               title: doc.data().title,
-               story: doc.data().story
-            })
-         });
-      } catch (e) {
-         console.error(`Error occurred in fetching stories ${e}`)
-      }
-
    }
 
    componentWillUnmount() {
@@ -110,9 +90,9 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
 
    }
 
-   clearInputs = (inputs:TextInput[]) => {
+   clearInputs = (inputs: TextInput[]) => {
       inputs.map(input => {
-         if(input!=null) input.clear()
+         if (input != null) input.clear()
       })
    }
 
@@ -183,8 +163,8 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
             }
             <CustomButton
                onPress={async () => {
-                  let submitted:boolean = await this.validateAndSubmitStory(storyWritten);
-                  if(submitted == true) this.clearInputs(inputs);
+                  let submitted: boolean = await this.validateAndSubmitStory(storyWritten);
+                  if (submitted == true) this.clearInputs(inputs);
                }}
                title="Submit"
                color="red"

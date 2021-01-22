@@ -1,17 +1,9 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, ToastAndroid, Platform } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
-import CustomButton from '../components/CustomButton';
 import firebase from '../configs/firebase.config';
 import GLOBALS from '../globals';
-
-interface TextFieldData {
-   height: number,
-   placeholder: string,
-   onChangeText: (text: string) => void,
-   multiline?: boolean
-}
 
 export interface Props {
 
@@ -20,7 +12,6 @@ export interface Props {
 export interface State {
    dimensions: ScaledSize,
    stories: StoryDocument[],
-   storyWritten: StoryDocument
 }
 
 interface Size {
@@ -42,11 +33,6 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
       this.state = {
          dimensions: Dimensions.get("window"),
          stories: [],
-         storyWritten: {
-            title: '',
-            author: '',
-            story: ''
-         }
       }
    }
 
@@ -61,25 +47,25 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    getAllStoriesFromFirestore = async () => {
-      try {
-         let storiesResponse = await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get();
-         let _stories:StoryDocument[] = [];
-      
-         storiesResponse.docs.map(doc => {
-            _stories.push( {
-               author: doc.data().author,
-               title: doc.data().title,
-               story: doc.data().story
+      await firebase.firestore().collection(GLOBALS.firestore.collections.stories).get()
+         .then(res => {
+            let _stories: StoryDocument[] = [];
+
+            res.docs.map(doc => {
+               _stories.push({
+                  author: doc.data().author,
+                  title: doc.data().title,
+                  story: doc.data().story
+               })
+            });
+
+            this.setState({
+               stories: _stories
             })
-         });
-   
-         this.setState({
-            stories: _stories
          })
-      } catch(e) {
-         console.error(`Error occurred in fetching stories ${e}`)
-      }
-      
+         .catch(err => {
+            console.error(`Error occurred in fetching stories ${err}`);
+         });
    }
 
    componentWillUnmount() {
@@ -88,117 +74,80 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
       });
    }
 
-   validateAndSubmitStory = async (storyWritten: StoryDocument) => {
-      let storyValidations = GLOBALS.storyValidations;
-      let storyValidationErrors = storyValidations.errorMessages;
-
-      let authorNameMinimumLength = storyValidations.authorNameMinimumLength;
-      let titleMinimumLength = storyValidations.titleMinimumLength;
-      let storyNameMinimumLength = storyValidations.storyMinimumLength;
-
-      console.log(`Story Written ${JSON.stringify(storyWritten)}`);
-      if (storyWritten.author.length < authorNameMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.authorNameTooShort)
-         return false;
-      } else if (storyWritten.title.length < titleMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.titleTooShort)
-         return false;
-      } else if (storyWritten.story.length < storyNameMinimumLength) {
-         this.showToastMessagesToUser(storyValidationErrors.storyTooShort)
-         return false;
-      }
-
-      try {
-         firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
-            title: storyWritten.title,
-            author: storyWritten.author,
-            story: storyWritten.story
-         });
-         this.showToastMessagesToUser(GLOBALS.storySubmittedSuccesMessage);
-      } catch (e) {
-         this.showToastMessagesToUser(GLOBALS.errors.unknownError)
-         return false;
-      }
-
-   }
-
-   showToastMessagesToUser(message: string) {
-
-      //Toast android doesn't work on any ohter thing than android
-      if (Platform.OS == 'android') {
-         ToastAndroid.show(message, ToastAndroid.LONG);
-      } else {
-         alert(message);
-      }
-
-   }
-
    render() {
-      let storyWritten: StoryDocument = {
-         title: '',
-         author: '',
-         story: ''
-      };
-
-      let dimensions: ScaledSize = this.state.dimensions;
-      let storyTextFieldSize: Size = { width: dimensions.width / 2, height: dimensions.height / 13 }
-      let textFieldDataList: TextFieldData[] = [
-         {
-            height: storyTextFieldSize.height,
-            placeholder: "Title",
-            onChangeText: (text: string) => {
-               storyWritten.title = text;
-            },
-         },
-         {
-            height: storyTextFieldSize.height,
-            placeholder: "Author",
-            onChangeText: (text: string) => {
-               storyWritten.author = text;
-            }
-         },
-         {
-            height: dimensions.height / 2.15,
-            placeholder: "Story",
-            onChangeText: (text: string) => {
-               storyWritten.story = text;
-            },
-            multiline: true
-         }
-      ];
-      let customButtonWidth: number = 120;
+      
       return (
          <View>
-            <AppBar title="Write Story" />
-            {textFieldDataList.map(data => {
-               return <View style={textInputStyles(dimensions, storyTextFieldSize).storyTextField}>
-                  <TextField
-                     textInputWidth={storyTextFieldSize.width}
-                     textInputHeight={data.height}
-                     placeholder={data.placeholder}
-                     onChangeText={data.onChangeText}
-                     multiline={data.multiline == null ? false : data.multiline}
-                  />
-               </View>
-            })
-            }
-            <CustomButton
-               onPress={() => this.validateAndSubmitStory(storyWritten)}
-               title="Submit"
-               color="red"
-               paddingTop={20}
-               paddingLeft={(dimensions.width / 2) - (customButtonWidth / 2)}
-               width={customButtonWidth}
+            <AppBar title="Read Story" />
+            <FlatList 
+               data={this.state.stories}
+               renderItem={({index}) => <ListTile storyData = {this.state.stories[index]} dimensions={this.state.dimensions}/>}
+               keyExtractor={(item, index)=>index.toString()}
+               style={storyListTileStyles(this.state.dimensions).listView}
             />
-         </View>
+         </View> 
       )
    }
 }
 
-const textInputStyles = (dimensions: ScaledSize, size: Size) => StyleSheet.create({
-   storyTextField: {
-      paddingLeft: (dimensions.width / 2) - (size.width / 2),
-      paddingTop: size.height / 2,
-      backgroundColor: "white"
+const ListTile = ({storyData, dimensions}:{storyData:StoryDocument, dimensions:ScaledSize}) => {
+
+   let styles = storyListTileStyles(dimensions);
+   let letters = 'BCDEF'.split('');
+   let color = '#';
+   for (var i = 0; i < 6; i++ ) {
+       color += letters[Math.floor(Math.random() * letters.length)];
+   }
+
+   console.log(`Color: ${color}`)
+
+   let listTileContainer = {
+      backgroundColor: `${color}`,
+      marginTop: 15,
+      marginHorizontal: 10,
+      shadowColor: 'black',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      elevation: 2,    
+      paddingLeft: 10,
+      borderRadius: 10
+   }
+
+   return (
+      <View style={listTileContainer}>
+         <View style={styles.listTileTextContainer}>
+            <Text style={styles.listTileTextTitle}>Title: </Text>
+            <Text style={styles.listTileText}>{storyData.title}</Text>
+         </View>
+         <View>
+            <View style={styles.listTileTextContainer}>
+               <Text style={styles.listTileTextTitle}>Author: </Text>
+               <Text style={styles.listTileText}>{storyData.author}</Text>
+            </View>
+         </View>
+      </View>
+   );
+}
+
+const storyListTileStyles = (dimensions: ScaledSize) => StyleSheet.create({
+   listView: {
+      marginTop: 2.0,
+      height: dimensions.height,
+      backgroundColor: "#ffe57f",
    },
+   listTile: {
+
+   },
+   listTileTextContainer: {
+      flexDirection: "row",
+      paddingVertical: 2,
+   },
+   listTileTextTitle: {
+      fontWeight: "600",
+      fontSize: GLOBALS.listTile.styles.font.size
+   },
+   listTileText: {
+      fontSize: GLOBALS.listTile.styles.font.size
+   }
 })
