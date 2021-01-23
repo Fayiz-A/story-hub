@@ -7,7 +7,8 @@ export interface Props {
    placeholder: string,
    onChangeText: (text: string) => void,
    multiline: boolean,
-   reference?: (input: TextInput) => void;
+   reference?: (input: TextInput) => void,
+   borders?: 1|2
 }
 
 export interface State {
@@ -51,13 +52,20 @@ export default class TextField extends React.Component<Props, State> {
    }
 }
 
+//the statement is not an error. This is the only way it is done and this is an existing bug in eslint
+TextField.defaultProps = {
+   borders: 2
+}
+
 const styles = (props: Props, dimensions: ScaledSize) => StyleSheet.create({
    textField: {
       width: props.textInputWidth,
       height: props.textInputHeight,
       borderColor: "black",
       borderWidth: 4,
-      borderRadius: props.multiline ? 20:props.textInputWidth / 2,
+      borderTopStartRadius: props.multiline ? 20:props.borders == 1 ? props.textInputWidth:(props.textInputWidth/2) / 2,
+      borderBottomStartRadius: props.multiline ? 20:props.borders == 1 ? props.textInputWidth:(props.textInputWidth/2) / 2,
+      borderRadius: props.multiline ? 20: props.borders == 1 ? 0:(props.textInputWidth/2) / 2,
       backgroundColor: "white",
       paddingLeft: 5,
       fontSize: dimensions.height / 30

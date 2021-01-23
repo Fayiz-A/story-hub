@@ -37,8 +37,8 @@ export default class App extends React.Component {
               inactiveTintColor: 'gray',
             }}
           >
-            <Tab.Screen name={GLOBALS.writeScreenName} component={WriteStoryScreen} />
-            <Tab.Screen name={GLOBALS.readScreenName} component={ReadStoryScreen} />
+            <Tab.Screen name={GLOBALS.writeScreenName} component={ReadStoryScreen} />
+            <Tab.Screen name={GLOBALS.readScreenName} component={WriteStoryScreen} />
           </Tab.Navigator>
         </NavigationContainer>
     );

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import firebase from '../configs/firebase.config';
 import GLOBALS from '../globals';
+import CustomButton from '../components/CustomButton';
 
 export interface Props {
 
@@ -32,7 +33,28 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
       this.state = {
          dimensions: Dimensions.get("window"),
-         stories: [],
+         stories: [
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            }
+         ],
       }
    }
 
@@ -43,7 +65,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
          })
       })
 
-      this.getAllStoriesFromFirestore();
+      // this.getAllStoriesFromFirestore();
    }
 
    getAllStoriesFromFirestore = async () => {
@@ -75,20 +97,38 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    render() {
-
+      let dimensions:ScaledSize = this.state.dimensions;
       return (
-         <View style={responsiveStyles(this.state.dimensions).background}>
+         <View style={responsiveStyles(dimensions).background}>
             <AppBar title="Read Story" />
+            <View style={responsiveStyles(dimensions).storySearchBarContainer}>
+               <TextField
+                  textInputWidth={dimensions.width / 2}
+                  textInputHeight={dimensions.height / 13}
+                  onChangeText={(value:string) => {}}
+                  placeholder='Search for a story'
+                  multiline={false}
+                  borders={1}
+               />
+               <TouchableOpacity 
+                  onPress = {() => {}}
+                  style={responsiveStyles(dimensions).searchStoryButton}
+               >
+                  <Text style={responsiveStyles(dimensions).searchStoryButtonText}>Search</Text>
+               </TouchableOpacity>
+            </View>
             {
                this.state.stories.length == 0 ?
-                  <View style={responsiveStyles(this.state.dimensions).activityIndicatorContainer}>
-                     <ActivityIndicator animating={true} color="purple" size={this.state.dimensions.height/3}/>
+                  <View style={responsiveStyles(dimensions).activityIndicatorContainer}>
+                     <ActivityIndicator animating={true} color="purple" size={dimensions.height/3}/>
                   </View> :
                   <FlatList
+                     contentContainerStyle={{ paddingBottom: 100 }}
                      data={this.state.stories}
-                     renderItem={({ index }) => <ListTile storyData={this.state.stories[index]} dimensions={this.state.dimensions} />}
+                     renderItem={({ index }) => <ListTile storyData={this.state.stories[index]} dimensions={dimensions} />}
                      keyExtractor={(item, index) => index.toString()}
-                  />}
+                  />
+            }
          </View>
       )
    }
@@ -97,7 +137,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 const ListTile = ({ storyData, dimensions }: { storyData: StoryDocument, dimensions: ScaledSize }) => {
 
    let styles = responsiveStyles(dimensions);
-   let letters = 'BCDEF'.split('');
+   let letters = 'BCDEF'.split('');//light color hex codes
    let color = '#';
    for (var i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * letters.length)];
@@ -139,8 +179,27 @@ const responsiveStyles = (dimensions: ScaledSize) => StyleSheet.create({
       height: dimensions.height,
       backgroundColor: "#ffe57f",
    },
-   listTile: {
-
+   storySearchBarContainer: {
+      flexDirection: "row",
+      paddingTop: 20,
+      paddingLeft: dimensions.width / 2 - (((dimensions.width / 2) / 2)-(dimensions.width/200/2)) //dimensions.width / 2 is the width of storySearchBar
+   },
+   searchStoryButton: {
+      width: dimensions.width/13,
+      backgroundColor: "rgb(234, 111, 123)",
+      justifyContent: "center",
+      alignItems: "center",
+      borderTopEndRadius: 200,
+      borderBottomEndRadius: 200,
+      paddingHorizontal: 10,
+      borderColor: "black",
+      borderTopWidth: 4,
+      borderBottomWidth: 4,
+      borderEndWidth: 4
+   },
+   searchStoryButtonText: {
+      fontSize: dimensions.height / 30,
+      color: "white"
    },
    listTileTextContainer: {
       flexDirection: "row",
