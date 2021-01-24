@@ -68,7 +68,7 @@ export default class StoryContentScreen extends React.Component<Props, State> {
 
 const styles = (dimensions:ScaledSize) => StyleSheet.create({
    background: {
-      height: dimensions.height,
+      height: Infinity,
       backgroundColor: "#ffe57f",
    },
    storyContentContainer: {
