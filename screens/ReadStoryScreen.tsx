@@ -140,9 +140,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                      borders={1}
                   />
                   <TouchableOpacity 
-                     onPress = {() => {
-                        this.props.navigation.navigate({routeName: "StoryContentScreen", params: {story: this.state.displayStories[0]}})
-                     }}
+                     onPress = {() => {this.searchForStories(searchText)}}
                      style={responsiveStyles(dimensions).searchStoryButton}
                   >
                      <Text style={responsiveStyles(dimensions).searchStoryButtonText}>Search</Text>
@@ -160,7 +158,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                      <FlatList
                         contentContainerStyle={{ paddingBottom: 100 }}
                         data={this.state.displayStories}
-                        renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} />}
+                        renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} props={this.props}/>}
                         keyExtractor={(item, index) => index.toString()}
                         onEndReachedThreshold={100}
                         onEndReached={() => searchText.trim().length == 0 ? this.getAllStoriesFromFirestore():console.log(`No need to fetch!`)}
@@ -172,7 +170,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 }
 
-const ListTile = ({ storyData, dimensions }: { storyData: StoryDocument, dimensions: ScaledSize }) => {
+const ListTile = ({ storyData, dimensions, props }: { storyData: StoryDocument, dimensions: ScaledSize, props:Props }) => {
 
    let styles = responsiveStyles(dimensions);
    let letters = 'BCDEF'.split('');//light color hex codes
@@ -198,18 +196,22 @@ const ListTile = ({ storyData, dimensions }: { storyData: StoryDocument, dimensi
    }
 
    return (
-      <View style={listTileContainer}>
-         <View style={styles.listTileTextContainer}>
-            <Text style={styles.listTileTextTitle}>Title: </Text>
-            <Text style={styles.listTileText}>{storyData.title}</Text>
-         </View>
-         <View>
+      <TouchableOpacity
+         onPress={() => {props.navigation.navigate({routeName: "StoryContentScreen", params: {story: storyData}})}}
+      >
+         <View style={listTileContainer}>
             <View style={styles.listTileTextContainer}>
-               <Text style={styles.listTileTextTitle}>Author: </Text>
-               <Text style={styles.listTileText}>{storyData.author}</Text>
+               <Text style={styles.listTileTextTitle}>Title: </Text>
+               <Text style={styles.listTileText}>{storyData.title}</Text>
+            </View>
+            <View>
+               <View style={styles.listTileTextContainer}>
+                  <Text style={styles.listTileTextTitle}>Author: </Text>
+                  <Text style={styles.listTileText}>{storyData.author}</Text>
+               </View>
             </View>
          </View>
-      </View>
+      </TouchableOpacity>
    );
 }
 
