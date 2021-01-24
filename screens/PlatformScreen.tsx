@@ -46,8 +46,8 @@ export default class PlatformScreen extends React.Component<Props> {
                   inactiveTintColor: 'gray',
                }}
             >
-               <Tab.Screen name={GLOBALS.writeScreenName} children={()=><ReadStoryScreen navigation = {this.props.navigation}/>} />
-               <Tab.Screen name={GLOBALS.readScreenName} component={WriteStoryScreen} />
+               <Tab.Screen name={GLOBALS.readScreenName} children={()=><ReadStoryScreen navigation = {this.props.navigation}/>} />
+               <Tab.Screen name={GLOBALS.writeScreenName} component={WriteStoryScreen} />
             </Tab.Navigator>
          </NavigationContainer>
       )

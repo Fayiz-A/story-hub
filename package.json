@@ -2,7 +2,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "homepage": "https://fayiz-a.github.io/story-hub/",
   "scripts": {
-    "deploy": "gh-pages -d web:build",
+    "deploy": "gh-pages -d web-build",
     "predoploy": "expo build:web",
     "start": "expo start",
     "android": "expo start --android",
