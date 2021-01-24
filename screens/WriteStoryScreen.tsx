@@ -74,7 +74,7 @@ export default class WriteStoryScreen extends React.Component<Props, State> {
          return false;
       }
 
-      firebase.firestore().collection(GLOBALS.firestore.collections.stories).add({
+      firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).add({
          title: storyWritten.title,
          author: storyWritten.author,
          story: storyWritten.story

@@ -13,7 +13,9 @@ export interface Props {
 export interface State {
    dimensions: ScaledSize,
    stories: StoryDocument[],
-   displayStories: StoryDocument[]
+   displayStories: StoryDocument[],
+   lastVisibleStory: StoryDocument | null,
+   searchText: string
 }
 
 interface Size {
@@ -35,7 +37,9 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
       this.state = {
          dimensions: Dimensions.get("window"),
          stories: [],
-         displayStories: []
+         displayStories: [],
+         lastVisibleStory: null,
+         searchText: ""
       }
    }
 
@@ -50,7 +54,13 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    getAllStoriesFromFirestore = async () => {
-      await firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).limit(15).get()
+      let limitValue = 10;
+      let lastVisibleStory:StoryDocument|null = this.state.lastVisibleStory;
+
+      let query = lastVisibleStory == null ? 
+      firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).orderBy(GLOBALS.firestore.collections.documents.fields.names.title).limit(limitValue)://query from the beginning
+      firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).orderBy(GLOBALS.firestore.collections.documents.fields.names.title).startAfter(lastVisibleStory.title).limit(limitValue);
+      await query.get()
          .then(res => {
             let _stories: StoryDocument[] = [];
 
@@ -61,10 +71,14 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                   story: doc.data().story
                })
             });
+            
+            _stories = [...this.state.stories, ..._stories];
 
+            let lastVisibleStory = this.state.stories[this.state.stories.length - 1];
             this.setState({
                stories: _stories,
-               displayStories: _stories
+               displayStories: _stories,
+               lastVisibleStory: lastVisibleStory,
             })
          })
          .catch(err => {
@@ -92,7 +106,8 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
       }
 
       this.setState({
-         displayStories: searchResults
+         displayStories: searchResults,
+         searchText: searchText
       })
    }
 
@@ -104,7 +119,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
    render() {
       let dimensions:ScaledSize = this.state.dimensions;
-      let searchText:string = "";
+      let searchText:string = this.state.searchText;
       return (
          <View style={responsiveStyles(dimensions).background}>
             <AppBar title="Read Story" />
@@ -138,6 +153,8 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                      data={this.state.displayStories}
                      renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} />}
                      keyExtractor={(item, index) => index.toString()}
+                     onEndReachedThreshold={100}
+                     onEndReached={() => searchText.trim().length == 0 ? this.getAllStoriesFromFirestore():console.log(`No need to fetch!`)}
                   />
             }
          </View>
