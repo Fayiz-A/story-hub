@@ -13,6 +13,7 @@ export interface Props {
 export interface State {
    dimensions: ScaledSize,
    stories: StoryDocument[],
+   displayStories: StoryDocument[]
 }
 
 interface Size {
@@ -55,6 +56,28 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
             }
          ],
+         displayStories: [
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            },
+            {
+               author: "someone",
+               title: "Lorem Ipsum",
+               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
+            }
+         ]
       }
    }
 
@@ -65,7 +88,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
          })
       })
 
-      // this.getAllStoriesFromFirestore();
+      this.getAllStoriesFromFirestore();
    }
 
    getAllStoriesFromFirestore = async () => {
@@ -82,12 +105,26 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
             });
 
             this.setState({
-               stories: _stories
+               stories: _stories,
+               displayStories: _stories
             })
          })
          .catch(err => {
             console.error(`Error occurred in fetching stories ${err}`);
          });
+   }
+
+   searchForStories(searchText:string) {
+      let searchResults: StoryDocument[];
+
+      searchResults = this.state.stories.filter((story:StoryDocument) => {
+         if(story != null) {
+            return story.title.trim().toLowerCase().includes(searchText.trim().toLowerCase())
+         }
+      });
+      this.setState({
+         displayStories: searchResults
+      })
    }
 
    componentWillUnmount() {
@@ -98,6 +135,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
    render() {
       let dimensions:ScaledSize = this.state.dimensions;
+      let searchText:string;
       return (
          <View style={responsiveStyles(dimensions).background}>
             <AppBar title="Read Story" />
@@ -105,13 +143,13 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                <TextField
                   textInputWidth={dimensions.width / 2}
                   textInputHeight={dimensions.height / 13}
-                  onChangeText={(value:string) => {}}
+                  onChangeText={(value:string) => {searchText=value}}
                   placeholder='Search for a story'
                   multiline={false}
                   borders={1}
                />
                <TouchableOpacity 
-                  onPress = {() => {}}
+                  onPress = {() => this.searchForStories(searchText)}
                   style={responsiveStyles(dimensions).searchStoryButton}
                >
                   <Text style={responsiveStyles(dimensions).searchStoryButtonText}>Search</Text>
@@ -122,10 +160,14 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
                   <View style={responsiveStyles(dimensions).activityIndicatorContainer}>
                      <ActivityIndicator animating={true} color="purple" size={dimensions.height/3}/>
                   </View> :
+                  this.state.displayStories.length == 0 ?
+                  <View style={responsiveStyles(dimensions).noStoriesFoundContainer}>
+                     <Text style={responsiveStyles(dimensions).listTileTextTitle}>No Stories Found</Text>
+                  </View> :
                   <FlatList
                      contentContainerStyle={{ paddingBottom: 100 }}
-                     data={this.state.stories}
-                     renderItem={({ index }) => <ListTile storyData={this.state.stories[index]} dimensions={dimensions} />}
+                     data={this.state.displayStories}
+                     renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} />}
                      keyExtractor={(item, index) => index.toString()}
                   />
             }
@@ -145,6 +187,7 @@ const ListTile = ({ storyData, dimensions }: { storyData: StoryDocument, dimensi
 
    console.log(`Color: ${color}`)
 
+   //this is being dynamically changed so it is written here
    let listTileContainer = {
       backgroundColor: `${color}`,
       marginTop: 15,
@@ -182,10 +225,9 @@ const responsiveStyles = (dimensions: ScaledSize) => StyleSheet.create({
    storySearchBarContainer: {
       flexDirection: "row",
       paddingTop: 20,
-      paddingLeft: dimensions.width / 2 - (((dimensions.width / 2) / 2)-(dimensions.width/200/2)) //dimensions.width / 2 is the width of storySearchBar
+      paddingLeft: dimensions.width / 2 - (((dimensions.width / 2) / 2)+50) //dimensions.width / 2 is the width of storySearchBar and 50 is the touchable opacity width
    },
    searchStoryButton: {
-      width: dimensions.width/13,
       backgroundColor: "rgb(234, 111, 123)",
       justifyContent: "center",
       alignItems: "center",
@@ -200,6 +242,10 @@ const responsiveStyles = (dimensions: ScaledSize) => StyleSheet.create({
    searchStoryButtonText: {
       fontSize: dimensions.height / 30,
       color: "white"
+   },
+   noStoriesFoundContainer: {
+      paddingLeft: 20,
+      paddingTop: 20
    },
    listTileTextContainer: {
       flexDirection: "row",
