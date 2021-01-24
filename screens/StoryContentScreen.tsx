@@ -42,6 +42,7 @@ export default class StoryContentScreen extends React.Component<Props, State> {
       let story = this.props.navigation.getParam('story');
 
       return (
+      <View style={styles(dimensions).background}>
          <ScrollView>
             <View style={styles(dimensions).background}>
                <AppBar title = {story.title}/>
@@ -62,13 +63,14 @@ export default class StoryContentScreen extends React.Component<Props, State> {
                </View>
             </View>
          </ScrollView>
+         </View>
       )
    }
 }
 
 const styles = (dimensions:ScaledSize) => StyleSheet.create({
    background: {
-      height: Infinity,
+      height: dimensions.height,
       backgroundColor: "#ffe57f",
    },
    storyContentContainer: {

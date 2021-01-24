@@ -79,11 +79,11 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
             
             _stories = [...this.state.stories, ..._stories];
 
-            let lastVisibleStory = this.state.stories[this.state.stories.length - 1];
+            let lastVisibleStoryAfterFetching = this.state.stories[this.state.stories.length - 1] == null ? _stories[_stories.length - 1]:this.state.stories[this.state.stories.length - 1];
             this.setState({
                stories: _stories,
                displayStories: _stories,
-               lastVisibleStory: lastVisibleStory,
+               lastVisibleStory: lastVisibleStoryAfterFetching,
             })
          })
          .catch(err => {
