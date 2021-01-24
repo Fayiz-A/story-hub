@@ -3,7 +3,18 @@ export default {
    writeScreenName: "Write Story",
    firestore: {
       collections: {
-         stories: "stories"
+         names: {
+            stories: "stories"
+         },
+         documents: {
+            fields: {
+               names: {
+                  title: "title",
+                  author: "author",
+                  story: "story"
+               }
+            }
+         }
       }
    },
    storySubmittedSuccesMessage: "Your story has been submitted successfully!",

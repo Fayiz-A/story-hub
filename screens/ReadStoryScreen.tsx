@@ -34,50 +34,8 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
       this.state = {
          dimensions: Dimensions.get("window"),
-         stories: [
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            }
-         ],
-         displayStories: [
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            },
-            {
-               author: "someone",
-               title: "Lorem Ipsum",
-               story: "In aliqua Lorem aliqua enim in do laboris sunt ea non culpa duis aliqua aliquip. In consectetur in non qui mollit pariatur ut sit. Aute eu nisi dolor exercitation. Incididunt in proident ullamco nostrud aliqua nisi exercitation duis voluptate. Veniam amet velit consequat irure cupidatat id magna Lorem incididunt Lorem aute occaecat."
-            }
-         ]
+         stories: [],
+         displayStories: []
       }
    }
 
@@ -92,7 +50,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
    }
 
    getAllStoriesFromFirestore = async () => {
-      await firebase.firestore().collection(GLOBALS.firestore.collections.stories).limit(15).get()
+      await firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).limit(15).get()
          .then(res => {
             let _stories: StoryDocument[] = [];
 
@@ -114,14 +72,25 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
          });
    }
 
-   searchForStories(searchText:string) {
-      let searchResults: StoryDocument[];
+   searchForStories = async (searchText:string) => {
+      let searchResults: StoryDocument[] = [];
 
-      searchResults = this.state.stories.filter((story:StoryDocument) => {
-         if(story != null) {
-            return story.title.trim().toLowerCase().includes(searchText.trim().toLowerCase())
-         }
-      });
+      if(searchText.trim().length == 0) {
+         searchResults = this.state.stories;
+      } else {
+         await firebase.firestore().collection(GLOBALS.firestore.collections.names.stories).where(GLOBALS.firestore.collections.documents.fields.names.title, "==", searchText.trim()).get()
+         .then(res => {
+            res.docs.map((doc) => searchResults.push({
+               author: doc.data().author,
+               title: doc.data().title,
+               story: doc.data().story
+            }));
+         }).catch(err => {
+            console.error(`Error occurred in querying stories ${err}`);
+            alert(`Some error occurred!`)
+         })
+      }
+
       this.setState({
          displayStories: searchResults
       })
@@ -135,7 +104,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
    render() {
       let dimensions:ScaledSize = this.state.dimensions;
-      let searchText:string;
+      let searchText:string = "";
       return (
          <View style={responsiveStyles(dimensions).background}>
             <AppBar title="Read Story" />
