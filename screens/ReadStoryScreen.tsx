@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, ScaledSize, FlatList, Text, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import AppBar from '../components/AppBar';
 import TextField from '../components/TextField';
 import firebase from '../configs/firebase.config';
 import GLOBALS from '../globals';
-import CustomButton from '../components/CustomButton';
+
+import {
+   NavigationParams,
+   NavigationScreenProp,
+   NavigationState,
+ } from 'react-navigation';
 
 export interface Props {
-
+   navigation: NavigationScreenProp<any, any>
 }
 
 export interface State {
@@ -121,43 +126,48 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
       let dimensions:ScaledSize = this.state.dimensions;
       let searchText:string = this.state.searchText;
       return (
-         <View style={responsiveStyles(dimensions).background}>
-            <AppBar title="Read Story" />
-            <View style={responsiveStyles(dimensions).storySearchBarContainer}>
-               <TextField
-                  textInputWidth={dimensions.width / 2}
-                  textInputHeight={dimensions.height / 13}
-                  onChangeText={(value:string) => {searchText=value}}
-                  placeholder='Search for a story'
-                  multiline={false}
-                  borders={1}
-               />
-               <TouchableOpacity 
-                  onPress = {() => this.searchForStories(searchText)}
-                  style={responsiveStyles(dimensions).searchStoryButton}
-               >
-                  <Text style={responsiveStyles(dimensions).searchStoryButtonText}>Search</Text>
-               </TouchableOpacity>
-            </View>
-            {
-               this.state.stories.length == 0 ?
-                  <View style={responsiveStyles(dimensions).activityIndicatorContainer}>
-                     <ActivityIndicator animating={true} color="purple" size={dimensions.height/3}/>
-                  </View> :
-                  this.state.displayStories.length == 0 ?
-                  <View style={responsiveStyles(dimensions).noStoriesFoundContainer}>
-                     <Text style={responsiveStyles(dimensions).listTileTextTitle}>No Stories Found</Text>
-                  </View> :
-                  <FlatList
-                     contentContainerStyle={{ paddingBottom: 100 }}
-                     data={this.state.displayStories}
-                     renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} />}
-                     keyExtractor={(item, index) => index.toString()}
-                     onEndReachedThreshold={100}
-                     onEndReached={() => searchText.trim().length == 0 ? this.getAllStoriesFromFirestore():console.log(`No need to fetch!`)}
+         //if the content becomes too big, the page will be srollable
+         <ScrollView>
+            <View style={responsiveStyles(dimensions).background}>
+               <AppBar title="Read Story" />
+               <View style={responsiveStyles(dimensions).storySearchBarContainer}>
+                  <TextField
+                     textInputWidth={dimensions.width / 2}
+                     textInputHeight={dimensions.height / 13}
+                     onChangeText={(value:string) => {searchText=value}}
+                     placeholder='Search for a story'
+                     multiline={false}
+                     borders={1}
                   />
-            }
-         </View>
+                  <TouchableOpacity 
+                     onPress = {() => {
+                        this.props.navigation.navigate({routeName: "StoryContentScreen", params: {story: this.state.displayStories[0]}})
+                     }}
+                     style={responsiveStyles(dimensions).searchStoryButton}
+                  >
+                     <Text style={responsiveStyles(dimensions).searchStoryButtonText}>Search</Text>
+                  </TouchableOpacity>
+               </View>
+               {
+                  this.state.stories.length == 0 ?
+                     <View style={responsiveStyles(dimensions).activityIndicatorContainer}>
+                        <ActivityIndicator animating={true} color="purple" size={dimensions.height/3}/>
+                     </View> :
+                     this.state.displayStories.length == 0 ?
+                     <View style={responsiveStyles(dimensions).noStoriesFoundContainer}>
+                        <Text style={responsiveStyles(dimensions).listTileTextTitle}>No Stories Found</Text>
+                     </View> :
+                     <FlatList
+                        contentContainerStyle={{ paddingBottom: 100 }}
+                        data={this.state.displayStories}
+                        renderItem={({ index }) => <ListTile storyData={this.state.displayStories[index]} dimensions={dimensions} />}
+                        keyExtractor={(item, index) => index.toString()}
+                        onEndReachedThreshold={100}
+                        onEndReached={() => searchText.trim().length == 0 ? this.getAllStoriesFromFirestore():console.log(`No need to fetch!`)}
+                     />
+               }
+            </View>
+         </ScrollView>
       )
    }
 }
