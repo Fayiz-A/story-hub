@@ -1,24 +1,25 @@
 {
   "files": {
-    "app.js": "/story-hub/static/js/app.bc4d76ac.chunk.js",
-    "app.js.map": "/story-hub/static/js/app.bc4d76ac.chunk.js.map",
+    "app.js": "/story-hub/static/js/app.840ffe51.chunk.js",
+    "app.js.map": "/story-hub/static/js/app.840ffe51.chunk.js.map",
     "runtime~app.js": "/story-hub/static/js/runtime~app.b874393f.js",
     "runtime~app.js.map": "/story-hub/static/js/runtime~app.b874393f.js.map",
-    "static/js/2.77934303.chunk.js": "/story-hub/static/js/2.77934303.chunk.js",
-    "static/js/2.77934303.chunk.js.map": "/story-hub/static/js/2.77934303.chunk.js.map",
+    "static/js/2.53711be8.chunk.js": "/story-hub/static/js/2.53711be8.chunk.js",
+    "static/js/2.53711be8.chunk.js.map": "/story-hub/static/js/2.53711be8.chunk.js.map",
+    "fonts/MaterialCommunityIcons.ttf": "/story-hub/./fonts/MaterialCommunityIcons.ttf",
     "favicon-16.png": "/story-hub/favicon-16.png",
     "favicon-32.png": "/story-hub/favicon-32.png",
     "favicon.ico": "/story-hub/favicon.ico",
     "index.html": "/story-hub/index.html",
     "manifest.json": "/story-hub/manifest.json",
     "serve.json": "/story-hub/serve.json",
-    "static/js/2.77934303.chunk.js.LICENSE.txt": "/story-hub/static/js/2.77934303.chunk.js.LICENSE.txt",
+    "static/js/2.53711be8.chunk.js.LICENSE.txt": "/story-hub/static/js/2.53711be8.chunk.js.LICENSE.txt",
     "static/media/read.png": "/story-hub/static/media/read.bab2041c.png",
     "static/media/write.png": "/story-hub/static/media/write.85de73b4.png"
   },
   "entrypoints": [
     "static/js/runtime~app.b874393f.js",
-    "static/js/2.77934303.chunk.js",
-    "static/js/app.bc4d76ac.chunk.js"
+    "static/js/2.53711be8.chunk.js",
+    "static/js/app.840ffe51.chunk.js"
   ]
 }
