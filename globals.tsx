@@ -1,6 +1,7 @@
 export default {
    readScreenName: "Read Story",
    writeScreenName: "Write Story",
+   success: "Successfully validated",
    firestore: {
       collections: {
          names: {
