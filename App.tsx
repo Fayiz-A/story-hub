@@ -8,6 +8,7 @@ import GLOBALS from './globals';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import PlatformScreen from './screens/PlatformScreen'
 import StoryContentScreen from './screens/StoryContentScreen'
+import LoginScreen from './screens/LoginScreen';
 const Tab = createBottomTabNavigator();
 
 export default class App extends React.Component {
@@ -21,6 +22,7 @@ export default class App extends React.Component {
 }
 
 const SwitchNavigator = createSwitchNavigator({
+  LoginScreen: {screen: LoginScreen},
   PlatformScreen: {screen: PlatformScreen},
   StoryContentScreen: {screen: StoryContentScreen},
 });

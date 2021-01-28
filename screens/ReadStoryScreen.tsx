@@ -118,7 +118,7 @@ export default class ReadStoryScreen extends React.Component<Props, State> {
 
    componentWillUnmount() {
       Dimensions.removeEventListener("change", ({ window, screen }) => {
-         console.log(`Event listener for dimensions removed in WriteStoryScreen.tsx`)
+         console.log(`Event listener for dimensions removed in ReadStoryScreen.tsx`)
       });
    }
 
